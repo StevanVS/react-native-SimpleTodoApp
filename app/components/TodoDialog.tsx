@@ -45,6 +45,7 @@ export default function TodoDialog({
 
   return (
     <Dialog
+      keyboardShouldPersistTaps="handled"
       dialogStyle={styles.dialogContainer}
       animationType="fade"
       contentInsetAdjustmentBehavior="always"
@@ -55,23 +56,7 @@ export default function TodoDialog({
       }}
       onRequestClose={onClose}
       onTouchOutside={onClose}
-      visible={isVisible}
-      // positiveButton={{
-      //   onPress: () => confirm(inputTitle, todo?.id),
-      //   title: todo ? 'Editar' : 'Crear',
-      //   titleStyle: styles.button,
-      // }}
-      // negativeButton={
-      //   todo
-      //     ? {
-      //         title: 'Eliminar',
-      //         onPress: () => onDelete(todo?.id || ''),
-      //         titleStyle: [styles.button],
-      //         // style: {marginRight: 20},
-      //       }
-      //     : undefined
-      // }
-    >
+      visible={isVisible}>
       <TextInput
         ref={inputRef}
         style={styles.input}
