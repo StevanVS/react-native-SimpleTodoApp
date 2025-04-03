@@ -1,7 +1,7 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import globalStyle from '../constants/globalStyle';
-import {CheckBox} from '@rneui/base';
+import CheckBox from 'react-native-check-box';
 
 type Props = {
   todo: Todo;
@@ -14,13 +14,11 @@ export default function TodoItem({todo, onOpenTodo, onToggleComplete}: Props) {
     <Pressable onPress={() => onOpenTodo(todo)}>
       <View style={styles.container}>
         <CheckBox
-          checkedColor={globalStyle.accentColor}
-          containerStyle={styles.checkBox}
-          checked={todo.isComplete}
-          onPress={() => onToggleComplete(todo.id)}
-          iconType="material"
-          checkedIcon="check-box"
-          uncheckedIcon="check-box-outline-blank"
+          isChecked={todo.isComplete}
+          onClick={() => onToggleComplete(todo.id)}
+          style={styles.checkBox}
+          checkBoxColor={globalStyle.accentColor}
+          uncheckedCheckBoxColor={globalStyle.textColor}
         />
         <Text
           style={[styles.text, todo.isComplete ? styles.textComplete : null]}>

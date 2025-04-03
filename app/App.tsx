@@ -1,13 +1,23 @@
-import {SafeAreaView, StatusBar, StyleSheet, Text, View} from 'react-native';
-import React, {useState} from 'react';
+import {
+  Pressable,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import ActionButton from './components/ActionButton';
 import TodoDialog from './components/TodoDialog';
 import TodoList from './components/TodoList';
 import globalStyle from './constants/globalStyle';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {Icon} from '@rneui/base';
+import ContextMenu from 'react-native-context-menu-view';
 
 export default function App() {
   const [isDialogVisible, setIsDialogVisible] = useState(false);
+  const [isCompletedHidden, setIsCompletedHidden] = useState(false);
 
   const [todoToEdit, setTodoToEdit] = useState<Todo | null>(null);
 
@@ -28,6 +38,16 @@ export default function App() {
       isComplete: false,
     },
   ]);
+
+  const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
+
+  useEffect(() => {
+    if (isCompletedHidden) {
+      setFilteredTodos(todos.filter(t => t.isComplete === false));
+    } else {
+      setFilteredTodos(todos);
+    }
+  }, [todos, isCompletedHidden]);
 
   const newTodo = () => {
     setTodoToEdit(null);
@@ -75,16 +95,37 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
+      <StatusBar backgroundColor={globalStyle.backgroundColor} />
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerText}>Todo</Text>
+          <ContextMenu
+            dropdownMenuMode={true}
+            actions={[
+              {
+                title: isCompletedHidden
+                  ? 'Mostrar completados'
+                  : 'Ocultar completados',
+              },
+            ]}
+            onPress={e => {
+              switch (e.nativeEvent.index) {
+                case 0: {
+                  setIsCompletedHidden(!isCompletedHidden);
+                  break;
+                }
+              }
+            }}>
+            <Icon name="more-vert" size={30} color={globalStyle.textColor} />
+          </ContextMenu>
         </View>
 
         <TodoList
-          todos={todos}
+          todos={filteredTodos}
           onOpenTodo={openTodo}
           onToggleComplete={toggleComplete}
         />
+
         <ActionButton onPress={newTodo} />
         <TodoDialog
           todo={todoToEdit}
@@ -113,8 +154,12 @@ const styles = StyleSheet.create({
     color: globalStyle.textColor,
   },
   header: {
-    paddingLeft: 25,
+    paddingHorizontal: 20,
     paddingVertical: 10,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   headerText: {
     fontSize: 30,

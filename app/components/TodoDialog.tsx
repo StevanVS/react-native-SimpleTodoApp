@@ -40,7 +40,6 @@ export default function TodoDialog({
   const confirm = (title: string, id?: string) => {
     if (title.trim() === '') return;
     onConfirm(title, id);
-    setinputTitle('');
   };
 
   return (
