@@ -1,10 +1,4 @@
-import {
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import {SafeAreaView, StatusBar, StyleSheet, Text, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import ActionButton from './components/ActionButton';
 import TodoDialog from './components/TodoDialog';
@@ -46,7 +40,12 @@ export default function App() {
         setTodos([
           {
             id: 'a',
-            title: 'Programar',
+            title: 'Puedes agregar tareas en el botón más',
+            isComplete: false,
+          },
+          {
+            id: 'b',
+            title: 'Puedes ocultar las tareas completadas en las opciones',
             isComplete: false,
           },
         ]);
@@ -60,7 +59,7 @@ export default function App() {
     try {
       await AsyncStorage.setItem('todos', JSON.stringify(todos));
     } catch (error) {
-      console.log(error);
+      console.log({error});
     }
   };
 
