@@ -41,7 +41,7 @@ export default function App() {
 
   const addOrEditTodo = (title: string, id?: string) => {
     const newTodos = [...todos];
-    console.log({id});
+
     if (id) {
       const index = newTodos.findIndex(t => t.id === id);
       newTodos[index].title = title;
@@ -49,6 +49,16 @@ export default function App() {
       const todo: Todo = {id: Date.now().toString(), title, isComplete: false};
       newTodos.push(todo);
     }
+
+    setTodos(newTodos);
+  };
+
+  const deleteTodo = (id: string) => {
+    const newTodos = [...todos];
+    const index = newTodos.findIndex(t => t.id === id);
+    if (index === -1) return;
+
+    newTodos.splice(index, 1);
 
     setTodos(newTodos);
   };
@@ -85,6 +95,10 @@ export default function App() {
           onConfirm={(title, id) => {
             setIsDialogVisible(false);
             addOrEditTodo(title, id);
+          }}
+          onDelete={id => {
+            setIsDialogVisible(false);
+            deleteTodo(id);
           }}
         />
       </SafeAreaView>

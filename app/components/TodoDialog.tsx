@@ -1,12 +1,21 @@
-import {StyleProp, StyleSheet, TextInput, ViewStyle} from 'react-native';
+import {
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  ViewStyle,
+} from 'react-native';
 import React, {ReactElement, useEffect, useRef, useState} from 'react';
-import {ConfirmDialog} from 'react-native-simple-dialogs';
+import {ConfirmDialog, Dialog} from 'react-native-simple-dialogs';
 import globalStyle from '../constants/globalStyle';
 
 type Props = {
   todo: Todo | null;
   isVisible: boolean;
   onConfirm: (title: string, id?: string) => void;
+  onDelete: (id: string) => void;
   onClose: () => void;
 };
 
@@ -14,6 +23,7 @@ export default function TodoDialog({
   todo,
   isVisible,
   onConfirm,
+  onDelete,
   onClose,
 }: Props) {
   const [inputTitle, setinputTitle] = useState<string>('');
@@ -34,7 +44,7 @@ export default function TodoDialog({
   };
 
   return (
-    <ConfirmDialog
+    <Dialog
       dialogStyle={styles.dialogContainer}
       animationType="fade"
       contentInsetAdjustmentBehavior="always"
@@ -46,11 +56,22 @@ export default function TodoDialog({
       onRequestClose={onClose}
       onTouchOutside={onClose}
       visible={isVisible}
-      positiveButton={{
-        onPress: () => confirm(inputTitle, todo?.id),
-        title: todo ? 'Editar' : 'Crear',
-        style: styles.button as StyleProp<ViewStyle>,
-      }}>
+      // positiveButton={{
+      //   onPress: () => confirm(inputTitle, todo?.id),
+      //   title: todo ? 'Editar' : 'Crear',
+      //   titleStyle: styles.button,
+      // }}
+      // negativeButton={
+      //   todo
+      //     ? {
+      //         title: 'Eliminar',
+      //         onPress: () => onDelete(todo?.id || ''),
+      //         titleStyle: [styles.button],
+      //         // style: {marginRight: 20},
+      //       }
+      //     : undefined
+      // }
+    >
       <TextInput
         ref={inputRef}
         style={styles.input}
@@ -59,7 +80,23 @@ export default function TodoDialog({
         onChangeText={setinputTitle}
         onSubmitEditing={() => confirm(inputTitle, todo?.id)}
       />
-    </ConfirmDialog>
+      <View style={styles.buttonContainer}>
+        {todo ? (
+          <Pressable
+            onPress={() => onDelete(todo.id)}
+            android_ripple={{borderless: false}}>
+            <Text style={styles.button}>ELIMINAR</Text>
+          </Pressable>
+        ) : (
+          <View />
+        )}
+        <Pressable
+          onPress={() => confirm(inputTitle, todo?.id)}
+          android_ripple={{borderless: false}}>
+          <Text style={styles.button}>{todo ? 'EDITAR' : 'CREAR'}</Text>
+        </Pressable>
+      </View>
+    </Dialog>
   );
 }
 
@@ -74,7 +111,14 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     color: globalStyle.textColor,
   },
+  buttonContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
   button: {
     color: globalStyle.accentColor,
+    padding: 4,
   },
 });
