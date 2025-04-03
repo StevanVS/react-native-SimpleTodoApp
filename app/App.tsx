@@ -194,6 +194,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 100,
   },
   informationText: {
     color: globalStyle.textColor,
