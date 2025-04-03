@@ -5,10 +5,11 @@ import globalStyle from '../constants/globalStyle';
 
 type Props = {
   todos: Todo[];
-  onCompleteToggle: (id: string) => void;
+  onOpenTodo: (todo: Todo) => void;
+  onToggleComplete: (id: string) => void;
 };
 
-export default function TodoList({todos, onCompleteToggle}: Props) {
+export default function TodoList({todos, onOpenTodo, onToggleComplete}: Props) {
   const separator = () => <View style={styles.separator} />;
 
   return (
@@ -16,7 +17,11 @@ export default function TodoList({todos, onCompleteToggle}: Props) {
       style={styles.container}
       data={todos}
       renderItem={({item}) => (
-        <TodoItem todo={item} onCompleteToggle={onCompleteToggle} />
+        <TodoItem
+          todo={item}
+          onOpenTodo={onOpenTodo}
+          onToggleComplete={onToggleComplete}
+        />
       )}
     />
   );

@@ -1,17 +1,15 @@
-import {
-  SafeAreaView,
-  StyleSheet,
-} from 'react-native';
+import {SafeAreaView, StatusBar, StyleSheet, Text, View} from 'react-native';
 import React, {useState} from 'react';
 import ActionButton from './components/ActionButton';
 import TodoDialog from './components/TodoDialog';
 import TodoList from './components/TodoList';
 import globalStyle from './constants/globalStyle';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 export default function App() {
   const [isDialogVisible, setIsDialogVisible] = useState(false);
 
-  const todoToEdit: Todo | null = null;
+  const [todoToEdit, setTodoToEdit] = useState<Todo | null>(null);
 
   const [todos, setTodos] = useState<Todo[]>([
     {
@@ -31,10 +29,27 @@ export default function App() {
     },
   ]);
 
-  const addTodo = (title: string) => {
+  const newTodo = () => {
+    setTodoToEdit(null);
+    setIsDialogVisible(true);
+  };
+
+  const openTodo = (todo: Todo) => {
+    setTodoToEdit(todo);
+    setIsDialogVisible(true);
+  };
+
+  const addOrEditTodo = (title: string, id?: string) => {
     const newTodos = [...todos];
-    const todo: Todo = {id: Date.now().toString(), title, isComplete: false};
-    newTodos.push(todo);
+    console.log({id});
+    if (id) {
+      const index = newTodos.findIndex(t => t.id === id);
+      newTodos[index].title = title;
+    } else {
+      const todo: Todo = {id: Date.now().toString(), title, isComplete: false};
+      newTodos.push(todo);
+    }
+
     setTodos(newTodos);
   };
 
@@ -49,26 +64,31 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TodoList todos={todos} onCompleteToggle={toggleComplete} />
-      <ActionButton
-        onPress={() => {
-          setIsDialogVisible(true);
-        }}
-      />
-      <TodoDialog
-        todo={todoToEdit}
-        confirmText="Anadir"
-        isVisible={isDialogVisible}
-        onClose={() => {
-          setIsDialogVisible(false);
-        }}
-        onConfirm={title => {
-          setIsDialogVisible(false);
-          addTodo(title);
-        }}
-      />
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Todo</Text>
+        </View>
+
+        <TodoList
+          todos={todos}
+          onOpenTodo={openTodo}
+          onToggleComplete={toggleComplete}
+        />
+        <ActionButton onPress={newTodo} />
+        <TodoDialog
+          todo={todoToEdit}
+          isVisible={isDialogVisible}
+          onClose={() => {
+            setIsDialogVisible(false);
+          }}
+          onConfirm={(title, id) => {
+            setIsDialogVisible(false);
+            addOrEditTodo(title, id);
+          }}
+        />
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
@@ -76,6 +96,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: globalStyle.backgroundColor,
+    color: globalStyle.textColor,
+  },
+  header: {
+    paddingLeft: 25,
+    paddingVertical: 10,
+  },
+  headerText: {
+    fontSize: 30,
+    fontWeight: 'bold',
     color: globalStyle.textColor,
   },
 });

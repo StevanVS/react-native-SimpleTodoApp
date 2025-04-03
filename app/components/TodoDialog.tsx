@@ -6,22 +6,30 @@ import globalStyle from '../constants/globalStyle';
 type Props = {
   todo: Todo | null;
   isVisible: boolean;
-  confirmText: string;
-  onConfirm: (title: string) => void;
+  onConfirm: (title: string, id?: string) => void;
   onClose: () => void;
 };
 
 export default function TodoDialog({
+  todo,
   isVisible,
-  confirmText,
   onConfirm,
   onClose,
 }: Props) {
   const [inputTitle, setinputTitle] = useState<string>('');
   const inputRef = useRef<TextInput>(null);
 
-  const confirm = () => {
-    onConfirm(inputTitle);
+  useEffect(() => {
+    if (todo) {
+      setinputTitle(todo.title);
+    } else {
+      setinputTitle('');
+    }
+  }, [todo]);
+
+  const confirm = (title: string, id?: string) => {
+    if (title.trim() === '') return;
+    onConfirm(title, id);
     setinputTitle('');
   };
 
@@ -39,8 +47,8 @@ export default function TodoDialog({
       onTouchOutside={onClose}
       visible={isVisible}
       positiveButton={{
-        onPress: () => confirm(),
-        title: confirmText,
+        onPress: () => confirm(inputTitle, todo?.id),
+        title: todo ? 'Editar' : 'Crear',
         style: styles.button as StyleProp<ViewStyle>,
       }}>
       <TextInput
@@ -49,7 +57,7 @@ export default function TodoDialog({
         placeholder="Nueva Tarea"
         value={inputTitle}
         onChangeText={setinputTitle}
-        onSubmitEditing={() => confirm()}
+        onSubmitEditing={() => confirm(inputTitle, todo?.id)}
       />
     </ConfirmDialog>
   );
