@@ -22,7 +22,10 @@ export default function TodoItem({todo, onOpenTodo, onToggleComplete}: Props) {
           checkedIcon="check-box"
           uncheckedIcon="check-box-outline-blank"
         />
-        <Text style={styles.text}>{todo.title}</Text>
+        <Text
+          style={[styles.text, todo.isComplete ? styles.textComplete : null]}>
+          {todo.title}
+        </Text>
       </View>
     </Pressable>
   );
@@ -43,5 +46,9 @@ const styles = StyleSheet.create({
   },
   text: {
     color: globalStyle.textColor,
+  },
+  textComplete: {
+    filter: 'brightness(0.75)',
+    textDecorationLine: 'line-through',
   },
 });
