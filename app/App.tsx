@@ -1,5 +1,4 @@
 import {
-  Pressable,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -14,6 +13,7 @@ import globalStyle from './constants/globalStyle';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {Icon} from '@rneui/base';
 import ContextMenu from 'react-native-context-menu-view';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function App() {
   const [isDialogVisible, setIsDialogVisible] = useState(false);
@@ -21,25 +21,13 @@ export default function App() {
 
   const [todoToEdit, setTodoToEdit] = useState<Todo | null>(null);
 
-  const [todos, setTodos] = useState<Todo[]>([
-    {
-      id: 'a',
-      title: 'Programar',
-      isComplete: true,
-    },
-    {
-      id: 'b',
-      title: 'Limpiar terraza',
-      isComplete: false,
-    },
-    {
-      id: 'c',
-      title: 'Estudiar',
-      isComplete: false,
-    },
-  ]);
+  const [todos, setTodos] = useState<Todo[]>([]);
 
   const [filteredTodos, setFilteredTodos] = useState<Todo[]>([]);
+
+  useEffect(() => {
+    getTodos();
+  }, []);
 
   useEffect(() => {
     if (isCompletedHidden) {
@@ -48,6 +36,33 @@ export default function App() {
       setFilteredTodos(todos);
     }
   }, [todos, isCompletedHidden]);
+
+  const getTodos = async () => {
+    try {
+      const todos = await AsyncStorage.getItem('todos');
+      if (todos) {
+        setTodos(JSON.parse(todos));
+      } else {
+        setTodos([
+          {
+            id: 'a',
+            title: 'Programar',
+            isComplete: false,
+          },
+        ]);
+      }
+    } catch (error) {
+      console.log({error});
+    }
+  };
+
+  const storeTodos = async (todos: Todo[]) => {
+    try {
+      await AsyncStorage.setItem('todos', JSON.stringify(todos));
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const newTodo = () => {
     setTodoToEdit(null);
@@ -71,6 +86,7 @@ export default function App() {
     }
 
     setTodos(newTodos);
+    storeTodos(newTodos);
   };
 
   const deleteTodo = (id: string) => {
@@ -81,6 +97,7 @@ export default function App() {
     newTodos.splice(index, 1);
 
     setTodos(newTodos);
+    storeTodos(newTodos);
   };
 
   const toggleComplete = (id: string) => {
@@ -91,6 +108,7 @@ export default function App() {
     newTodos[index].isComplete = !newTodos[index].isComplete;
 
     setTodos(newTodos);
+    storeTodos(newTodos);
   };
 
   return (
@@ -120,11 +138,17 @@ export default function App() {
           </ContextMenu>
         </View>
 
-        <TodoList
-          todos={filteredTodos}
-          onOpenTodo={openTodo}
-          onToggleComplete={toggleComplete}
-        />
+        {filteredTodos.length > 0 ? (
+          <TodoList
+            todos={filteredTodos}
+            onOpenTodo={openTodo}
+            onToggleComplete={toggleComplete}
+          />
+        ) : (
+          <View style={styles.informationContainer}>
+            <Text style={styles.informationText}>No hay tareas pendientes</Text>
+          </View>
+        )}
 
         <ActionButton onPress={newTodo} />
         <TodoDialog
@@ -165,5 +189,14 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     color: globalStyle.textColor,
+  },
+  informationContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  informationText: {
+    color: globalStyle.textColor,
+    filter: 'brightness(0.6)',
   },
 });
